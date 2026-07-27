@@ -12,15 +12,20 @@ int main() {
 
     // Main game loop
     while (!WindowShouldClose()) {
+
+        // Start the drawing phase for the current frame
         BeginDrawing();
 
+        // Clear the background with a black color
         ClearBackground(BLACK);
 
+        // Get the current FPS
         auto fps = GetFPS();
 
         // Draw the FPS counter on the screen
         DrawText(TextFormat("FPS: %d", fps), 10, 10, 20, WHITE);
 
+        // End the drawing phase and present the frame on the screen
         EndDrawing();
     }
 
