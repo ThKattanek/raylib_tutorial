@@ -27,6 +27,12 @@ int main() {
 
         // End the drawing phase and present the frame on the screen
         EndDrawing();
+
+        if(IsKeyPressed(KEY_ENTER) && IsKeyDown(KEY_LEFT_ALT))
+        {
+            SetWindowSize(screenWidth, screenHeight);
+            ToggleFullscreen();
+        }
     }
 
     // Close the window and clean up resources
