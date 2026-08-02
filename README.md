@@ -5,4 +5,6 @@ RAYLIB 6.0 Tutorial
 03 - Switch between window mode and full-screen mode with shortcut ALT+RETURN  
 04 - Switch between windowed mode and full-screen mode with a fixed resolution (rendered as a texture)  
 05 - Load and view an image  
+06 - Rotate and scale a texture on the screen  
+
 
