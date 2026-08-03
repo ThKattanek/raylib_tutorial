@@ -1,29 +1,14 @@
 #include "raylib.h"
-#include <cmath>
-#include <cstdint>
-#include <vector>
 
 void LoadAllResources();
 void UnloadAllResources();
 void DrawScreen(int width, int height);
-
-struct IntPoint{
-    int x,y;
-    Color color;
-};
-
-std::vector<IntPoint> points;
-
-IntPoint currentPoint;
-int currentDirection = 1; // 0 = up, 1 = right, 2 = down, 3 = left
 
 int main() {
 
     // Define the screen width and height for the game resolution
     const int screenWidth = 1280;   // HD-Ready Resolution (720p)
     const int screenHeight = 720;
-
-    currentPoint = { int(screenWidth * 0.5f), int(screenHeight * 0.5f)};
 
     // Create a window with the specified width, height, and title
     InitWindow(screenWidth, screenHeight, "Raylib 6.0 + CMake");
@@ -132,7 +117,6 @@ void LoadAllResources()
 
 void UnloadAllResources()
 {
-    points.clear();
 }
 
 void DrawScreen(int width, int height)
@@ -140,78 +124,5 @@ void DrawScreen(int width, int height)
     // Clear the background with a black color
     ClearBackground(DARKGRAY);
 
-    //
-    int notDirection;
 
-    static int counter = 0;
-    static int count_max = GetRandomValue(1, 50);
-
-    if(currentDirection == 0) // Up
-        notDirection = 2;
-    else if(currentDirection == 1) // Right
-        notDirection = 3;
-    else if(currentDirection == 2) // Down
-        notDirection = 0;
-    else // Left
-        notDirection = 1;
-
-    // Generate a random direction (0 to 3) that is different from the current direction
-    if(counter == 0)
-    {
-        do{
-            currentDirection = GetRandomValue(0,3);
-        }while(currentDirection == notDirection);
-
-        count_max = GetRandomValue(1, 50); // Randomize the number of steps in the current direction
-    }
-        // Move the current point based on the chosen direction
-        if(currentDirection == 0) // Up
-            currentPoint.y--;
-        else if(currentDirection == 1) // Right
-            currentPoint.x++;
-        else if(currentDirection == 2) // Down
-            currentPoint.y++;
-        else // Left
-            currentPoint.x--;
-
-        if(currentPoint.x >= width)
-            currentPoint.x = 0;
-        if(currentPoint.x < 0)
-            currentPoint.x = width-1;
-
-        if(currentPoint.y >= height)
-            currentPoint.y = 0;
-        if(currentPoint.y < 0)
-            currentPoint.y = height-1;
-
-    counter++;
-    if(counter > count_max)
-        counter = 0;
-
-    // Draw all Points
-    for(auto &p : points)
-    {
-        DrawPixel(p.x, p.y, p.color);
-    }
-
-    // Add the current point to the list of points
-    static float time = GetFrameTime();
-    uint8_t c = sin(time * 10.0f) * 127 + 128; // Calculate a color value based on the sine of the frame time
-    currentPoint.color = Color{c, c, c, 255}; // Set the color of the current point to white
-    points.push_back(currentPoint);
-
-    time+= GetFrameTime();
-
-    if(points.size() > 5000)
-    {
-        if (!points.empty()) {
-            points.erase(points.begin());
-        }
-    }
-
-    DrawPixel(currentPoint.x, currentPoint.y, BLACK);
-    DrawCircleLines(currentPoint.x, currentPoint.y, 10, BLACK);
-    DrawText(TextFormat("%d, %d", currentPoint.x, currentPoint.y), currentPoint.x - 20, currentPoint.y - 25, 10, BLACK);
-
-    DrawText( TextFormat("Current draw pixles for frame: %d", points.size()),10, height - 25, 20, WHITE);
 }
