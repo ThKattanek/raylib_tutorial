@@ -3,12 +3,17 @@
 void LoadAllResources();
 void UnloadAllResources();
 void DrawScreen(int width, int height);
+void DrawShortCuts(int width, int height);
+
+enum DrawMode{LINE_MODE, RECTANGLE_MODE, CIRCLE_MODE};
+
+int currentDrawMode = LINE_MODE;
 
 int main() {
 
     // Define the screen width and height for the game resolution
-    const int screenWidth = 1280;   // HD-Ready Resolution (720p)
-    const int screenHeight = 720;
+    const int screenWidth = 1920;   // Full-HD Resolution (1080p)
+    const int screenHeight = 1080;
 
     // Create a window with the specified width, height, and title
     InitWindow(screenWidth, screenHeight, "Raylib 6.0 + CMake");
@@ -94,9 +99,21 @@ int main() {
             else
             {
                 scale = 1.0f;
-
                 destRec = {0, 0, screenWidth * scale, screenHeight * scale};
             }
+        }
+
+        if(IsKeyPressed(KEY_L))
+        {
+            currentDrawMode = LINE_MODE;
+        }
+        else if(IsKeyPressed(KEY_R))
+        {
+            currentDrawMode = RECTANGLE_MODE;
+        }
+        else if(IsKeyPressed(KEY_C))
+        {
+            currentDrawMode = CIRCLE_MODE;
         }
     }
 
@@ -122,7 +139,39 @@ void UnloadAllResources()
 void DrawScreen(int width, int height)
 {
     // Clear the background with a black color
-    ClearBackground(DARKGRAY);
+    ClearBackground(BLACK);
 
+    // DrawShortcuts
+    DrawShortCuts(width, height);
+}
 
+void DrawShortCuts(int width, int height)
+{
+    Color color{255,255,255,40};
+
+    DrawText("L", 32, height - 60 , 40, color);
+    DrawText("R", 82, height - 60 , 40, color);
+    DrawText("C", 132, height - 60 , 40, color);
+
+    DrawRectangleRoundedLinesEx(Rectangle{ 25, static_cast<float>(height - 65), 40, 44 }, 0.2f, 8, 2, color);
+    DrawRectangleRoundedLinesEx(Rectangle{ 75, static_cast<float>(height - 65), 40, 44 }, 0.2f, 8, 2, color);
+    DrawRectangleRoundedLinesEx(Rectangle{ 125, static_cast<float>(height - 65), 40, 44 }, 0.2f, 8, 2, color);
+
+    color = WHITE;
+
+    switch(currentDrawMode)
+    {
+        case LINE_MODE:
+            DrawRectangleRoundedLinesEx(Rectangle{ 25, static_cast<float>(height - 65), 40, 44 }, 0.2f, 8, 2, color);
+            DrawText("L", 32, height - 60 , 40, color);
+            break;
+        case RECTANGLE_MODE:
+            DrawRectangleRoundedLinesEx(Rectangle{ 75, static_cast<float>(height - 65), 40, 44 }, 0.2f, 8, 2, color);
+            DrawText("R", 82, height - 60 , 40, color);
+            break;
+        case CIRCLE_MODE:
+            DrawRectangleRoundedLinesEx(Rectangle{ 125, static_cast<float>(height - 65), 40, 44 }, 0.2f, 8, 2, color);
+            DrawText("C", 132, height - 60 , 40, color);
+            break;
+    }
 }
