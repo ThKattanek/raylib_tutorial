@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include <cmath>
+#include <cstdlib>
 
 void LoadAllResources();
 void UnloadAllResources();
@@ -8,12 +10,16 @@ void DrawShortCuts(int width, int height);
 enum DrawMode{LINE_MODE, RECTANGLE_MODE, CIRCLE_MODE};
 
 int currentDrawMode = LINE_MODE;
+int currentCommandStep = 0;
+int start_x, start_y;
+
+float scale;
 
 int main() {
 
     // Define the screen width and height for the game resolution
-    const int screenWidth = 1920;   // Full-HD Resolution (1080p)
-    const int screenHeight = 1080;
+    const int screenWidth = 1280;   // HD-Ready Resolution (720p)
+    const int screenHeight = 720;
 
     // Create a window with the specified width, height, and title
     InitWindow(screenWidth, screenHeight, "Raylib 6.0 + CMake");
@@ -29,7 +35,7 @@ int main() {
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
     // Initialize the scale variable to 1.0f for no scaling (Windowed mode)
-    float scale = 1.0f; // Initialize scale variable to 1.0f for no scaling (Windowed mode)
+    scale = 1.0f; // Initialize scale variable to 1.0f for no scaling (Windowed mode)
 
     // Define the destination rectangle for rendering the texture on the screen
     Rectangle destRec = {
@@ -106,15 +112,32 @@ int main() {
         if(IsKeyPressed(KEY_L))
         {
             currentDrawMode = LINE_MODE;
+            currentCommandStep = 0;
         }
         else if(IsKeyPressed(KEY_R))
         {
             currentDrawMode = RECTANGLE_MODE;
+            currentCommandStep = 0;
         }
         else if(IsKeyPressed(KEY_C))
         {
             currentDrawMode = CIRCLE_MODE;
+            currentCommandStep = 0;
         }
+
+        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if(currentCommandStep == 0)
+            {
+                start_x = GetMouseX() / scale;
+                start_y = GetMouseY() / scale;
+                currentCommandStep++;
+            }
+            else
+            {
+                currentCommandStep = 0;
+            }
+        };
     }
 
     // Unload all resources that were loaded during the game
@@ -147,7 +170,34 @@ void DrawScreen(int width, int height)
 
 void DrawShortCuts(int width, int height)
 {
-    Color color{255,255,255,40};
+    Color color{255,255,255,255};
+
+    int mouseX = GetMouseX();
+    int mouseY = GetMouseY();
+
+    switch (currentDrawMode) {
+    case LINE_MODE:
+        if(currentCommandStep == 1)
+        {
+            DrawLine(start_x, start_y, mouseX / scale, mouseY / scale, color);
+        }
+        break;
+    case CIRCLE_MODE:
+        if(currentCommandStep == 1)
+        {
+            int xw = abs(start_x - mouseX / scale);
+            int yw = abs(start_y - mouseY / scale);
+            int r = (int)sqrt(xw * xw + yw * yw);
+
+            DrawCircleV(Vector2{(float)start_x, (float)start_y}, r, WHITE);
+        }
+        break;
+    default:
+        break;
+    }
+  //  DrawLine(0, 0, mouseX / scale, mouseY / scale, color);
+
+    color = {255,255,255,80};
 
     DrawText("L", 32, height - 60 , 40, color);
     DrawText("R", 82, height - 60 , 40, color);
