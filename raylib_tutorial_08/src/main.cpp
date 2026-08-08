@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include <cmath>
 #include <cstdlib>
+#include <vector>
 
 void LoadAllResources();
 void UnloadAllResources();
@@ -8,6 +9,15 @@ void DrawScreen(int width, int height);
 void DrawShortCuts(int width, int height);
 
 enum DrawMode{LINE_MODE, RECTANGLE_MODE, CIRCLE_MODE};
+
+struct DrawObject
+{
+    int mode;
+    int start_x, start_y;
+    int end_x, end_y;
+};
+
+std::vector<DrawObject> drawObjects;
 
 int currentDrawMode = LINE_MODE;
 int currentCommandStep = 0;
@@ -18,11 +28,13 @@ float scale;
 int main() {
 
     // Define the screen width and height for the game resolution
-    const int screenWidth = 1280;   // HD-Ready Resolution (720p)
-    const int screenHeight = 720;
+    const int screenWidth = 1920;   // HD-Ready Resolution (720p)
+    const int screenHeight = 1080;
 
     // Create a window with the specified width, height, and title
     InitWindow(screenWidth, screenHeight, "Raylib 6.0 + CMake");
+
+    HideCursor();
 
     // Get the monitor width and height for scaling purposes
     const int monitorWidth = GetMonitorWidth(0);
@@ -136,6 +148,7 @@ int main() {
             else
             {
                 currentCommandStep = 0;
+                drawObjects.push_back({currentDrawMode, start_x, start_y, int(GetMouseX() / scale), int(GetMouseY() / scale)});
             }
         };
     }
@@ -170,7 +183,29 @@ void DrawScreen(int width, int height)
 
 void DrawShortCuts(int width, int height)
 {
-    Color color{255,255,255,255};
+    // Draw the previously drawn objects from the drawObjects vector
+    for(const auto& obj : drawObjects)
+    {
+        switch(obj.mode)
+        {
+            case LINE_MODE:
+                DrawLine(obj.start_x, obj.start_y, obj.end_x, obj.end_y, WHITE);
+                break;
+            case RECTANGLE_MODE:
+                DrawRectangleLines(obj.start_x, obj.start_y, obj.end_x - obj.start_x, obj.end_y - obj.start_y, WHITE);
+                break;
+            case CIRCLE_MODE:
+                int xw = abs(obj.start_x - obj.end_x);
+                int yw = abs(obj.start_y - obj.end_y);
+                int r = (int)sqrt(xw * xw + yw * yw);
+
+                DrawCircleLines(obj.start_x, obj.start_y, r, WHITE);
+                break;
+        }
+    }
+
+    // Draw the current shape being drawn based on the current draw mode and command step
+    Color color{255,255,255,200};
 
     int mouseX = GetMouseX();
     int mouseY = GetMouseY();
@@ -185,18 +220,23 @@ void DrawShortCuts(int width, int height)
     case CIRCLE_MODE:
         if(currentCommandStep == 1)
         {
-            int xw = abs(start_x - mouseX / scale);
-            int yw = abs(start_y - mouseY / scale);
+            int xw = std::abs(start_x - mouseX / scale);
+            int yw = std::abs(start_y - mouseY / scale);
             int r = (int)sqrt(xw * xw + yw * yw);
 
-            DrawCircleV(Vector2{(float)start_x, (float)start_y}, r, WHITE);
+            DrawCircleLines(start_x, start_y, r, WHITE);
         }
         break;
+        case RECTANGLE_MODE:
+            if(currentCommandStep == 1)
+            {
+                DrawRectangleLines(start_x, start_y, mouseX / scale - start_x, mouseY / scale - start_y, WHITE);
+            }
     default:
         break;
     }
-  //  DrawLine(0, 0, mouseX / scale, mouseY / scale, color);
 
+    // Draw the shortcut keys (L, R, C) and their corresponding rectangles on the screen
     color = {255,255,255,80};
 
     DrawText("L", 32, height - 60 , 40, color);
@@ -224,4 +264,9 @@ void DrawShortCuts(int width, int height)
             DrawText("C", 132, height - 60 , 40, color);
             break;
     }
+
+    // Draw mouse cursor as kreuz
+    DrawLine(mouseX - 10, mouseY, mouseX + 10, mouseY, WHITE);
+    DrawLine(mouseX, mouseY - 10, mouseX, mouseY + 10, WHITE);
+
 }
