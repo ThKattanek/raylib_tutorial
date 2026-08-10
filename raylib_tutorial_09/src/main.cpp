@@ -7,6 +7,9 @@
 
 int main(void)
 {
+
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
+
     InitWindow(1920, 1080, "Raylib - 3D Modell mit Licht");
 
     Camera camera = { {0} };
